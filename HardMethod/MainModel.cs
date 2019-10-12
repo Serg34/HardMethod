@@ -18,7 +18,7 @@ namespace HardMethod
 		void ChangeDayOfWeekChange(int i);
 		void ChangeTime(DateTime time);
 		void Update();
-	} 
+	}
 	#endregion
 
 	public class MainModel : IMainModel
@@ -29,7 +29,7 @@ namespace HardMethod
 		private int _freeOperatorsCount;
 		private int _key;
 		private DateTime _now;
-		private StringBuilder _log = new StringBuilder(); 
+		private StringBuilder _log = new StringBuilder();
 		#endregion
 
 		public MainModel()
@@ -73,7 +73,7 @@ namespace HardMethod
 				_key = value;
 				Update();
 			}
-		} 
+		}
 		#endregion
 
 		public event EventHandler Updated;
@@ -91,7 +91,7 @@ namespace HardMethod
 		}
 		public void Update()
 		{
-			var map = new Dictionary<DayOfWeek, List<Func<bool>>>
+			var map = new Dictionary<DayOfWeek, AnswerBuilder>
 			{
 				[DayOfWeek.Monday] =
 					If(() => PressKeys(
@@ -101,7 +101,8 @@ namespace HardMethod
 						new PressKey(0, "соединить со оператором", null)))
 					.ThenIf(() => IsWorkTime(8, 20))
 					.ThenIf(() => FreeOperatorsCountMore(15))
-					.Then(ConnectWithOperator),
+					.Then(ConnectWithOperator)
+					.IfCancel(InvateCard),
 
 				[DayOfWeek.Tuesday] =
 					If(() => PressKeys(
@@ -112,7 +113,9 @@ namespace HardMethod
 						new PressKey(0, "соединить со оператором", null)))
 					.ThenIf(() => IsWorkTime(8, 20))
 					.ThenIf(() => FreeOperatorsCountMore(25))
-					.Then(ConnectWithOperator),
+					.Then(ConnectWithOperator)
+					.IfCancel(InvateCard)
+					.IfCancel(InvateMortgage),
 
 				[DayOfWeek.Wednesday] =
 					If(() => PressKeys(
@@ -123,7 +126,9 @@ namespace HardMethod
 						new PressKey(0, "соединить со оператором", null)))
 					.ThenIf(() => IsWorkTime(8, 20))
 					.ThenIf(() => FreeOperatorsCountMore(50))
-					.Then(ConnectWithOperator),
+					.Then(ConnectWithOperator)
+					.IfCancel(InvateCard)
+					.IfCancel(InvateMortgage),
 
 				[DayOfWeek.Thursday] =
 					If(() => PressKeys(
@@ -135,7 +140,9 @@ namespace HardMethod
 						new PressKey(0, "соединить со оператором", null)))
 					.ThenIf(() => IsWorkTime(8, 20))
 					.ThenIf(() => FreeOperatorsCountMore(50))
-					.Then(ConnectWithOperator),
+					.Then(ConnectWithOperator)
+					.IfCancel(InvateCard)
+					.IfCancel(InvateMortgage),
 
 				[DayOfWeek.Friday] =
 					If(() => PressKeys(
@@ -144,7 +151,9 @@ namespace HardMethod
 						new PressKey(0, "соединить со оператором", null)))
 					.ThenIf(() => IsWorkTime(8, 22))
 					.ThenIf(() => FreeOperatorsCountMore(75))
-					.Then(ConnectWithOperator),
+					.Then(ConnectWithOperator)
+					.IfCancel(InvateCard),
+
 				[DayOfWeek.Saturday] =
 					If(() => PressKeys(
 						new PressKey(1, "заблокировать карту", "Карта заблокирована"),
@@ -155,7 +164,8 @@ namespace HardMethod
 					.ThenIf(IsWorkDay)
 					.ThenIf(() => IsWorkTime(8, 15))
 					.ThenIf(() => FreeOperatorsCountMore(20))
-					.Then(ConnectWithOperator),
+					.Then(ConnectWithOperator)
+					.IfCancel(InvateCard),
 
 				[DayOfWeek.Sunday] =
 					If(() => PressKeys(
@@ -170,9 +180,13 @@ namespace HardMethod
 			};
 
 			_log.Clear();
-			foreach (var check in map[Now.DayOfWeek])
+			foreach (var check in map[Now.DayOfWeek].Checks)
 			{
-				if (!check.Invoke()) break;
+				if (!check.Invoke())
+				{
+					map[Now.DayOfWeek].Else.ForEach(a => a?.Invoke());
+					break;
+				}
 			}
 
 			Updated?.Invoke(this, EventArgs.Empty);
@@ -226,6 +240,17 @@ namespace HardMethod
 			if (!res) Answer = $"Перезвоните в рабочее время с {min}.00 до {max}.00";
 			return res;
 		}
+
+		private void InvateCard()
+		{
+			_log.AppendLine("IsNewCard");
+			Answer += "\n\nХотите завести карту с кэшбеком до 20%?\nПодробности у наших менеджеров.";
+		}
+		private void InvateMortgage()
+		{
+			_log.AppendLine("InvateMortgage");
+			Answer += "\n\nИпотека со ставкой от 5%?\nПодробности у наших менеджеров.";
+		}
 		private bool FreeOperatorsCountMore(int count)
 		{
 			var res = FreeOperatorsCount > count;
@@ -258,23 +283,31 @@ namespace HardMethod
 		}
 		private class AnswerBuilder
 		{
-			private readonly List<Func<bool>> _checks = new List<Func<bool>>();
+			public List<Func<bool>> Checks { get; } = new List<Func<bool>>();
+			public List<Action> Else { get; } = new List<Action>();
+
 			public AnswerBuilder(Func<bool> check)
 			{
-				_checks.Add(check);
+				Checks.Add(check);
 			}
 
 			public AnswerBuilder ThenIf(Func<bool> check)
 			{
-				_checks.Add(check);
+				Checks.Add(check);
 				return this;
 			}
-			public List<Func<bool>> Then(Func<bool> check)
+			public AnswerBuilder Then(Func<bool> check)
 			{
-				_checks.Add(check);
-				return _checks;
+				Checks.Add(check);
+				return this;
 			}
-		} 
+
+			public AnswerBuilder IfCancel(Action action)
+			{
+				Else.Add(action);
+				return this;
+			}
+		}
 		#endregion
 	}
 }
