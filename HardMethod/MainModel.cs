@@ -172,12 +172,31 @@ namespace HardMethod
 			_log.Clear();
 			foreach (var check in map[Now.DayOfWeek])
 			{
-				if (!check?.Invoke() ?? true) break;
+				if (!check.Invoke()) break;
 			}
 
 			Updated?.Invoke(this, EventArgs.Empty);
 		}
 
+		private bool PressKeys(params PressKey[] keys)
+		{
+			var map = keys.ToDictionary(n => n.Key, n => n.Answer);
+			Answer = string.Join("\n",
+				keys.Select(n => $"Чтобы {n.Description} нажмите клавишу {n.Key}."));
+
+			_log.AppendLine($"PressKey:\n\t{string.Join("\n\t", keys.Select(k => k.Description))}");
+			if (!map.ContainsKey(Key))
+			{
+				Answer += "\n\nВведённая клавиша не распознана.\nПовторите попытку";
+				_log.AppendLine("UnknownKey");
+				return false;
+			}
+
+			Answer = map[Key];
+			_log.AppendLine($"Key: {Key}");
+
+			return string.IsNullOrEmpty(Answer);
+		}
 		private bool IsWorkDay()
 		{
 			bool res;
@@ -214,25 +233,6 @@ namespace HardMethod
 			_log.AppendLine($"FreeOperatorsCountMore {count}?: {res}");
 			if (!res) Answer = "К сожалению, сейчас все операторы заняты.\nПерезвоните позже";
 			return res;
-		}
-		private bool PressKeys(params PressKey[] keys)
-		{
-			var map = keys.ToDictionary(n => n.Key, n => n.Answer);
-			Answer = string.Join("\n",
-				keys.Select(n => $"Чтобы {n.Description} нажмите клавишу {n.Key}."));
-
-			_log.AppendLine($"PressKey:\n\t{string.Join("\n\t", keys.Select(k => k.Description))}");
-			if (!map.ContainsKey(Key))
-			{
-				Answer += "\n\nВведённая клавиша не распознана.\nПовторите попытку";
-				_log.AppendLine("UnknownKey");
-				return false;
-			}
-
-			Answer = map[Key];
-			_log.AppendLine($"Key: {Key}");
-
-			return string.IsNullOrEmpty(Answer);
 		}
 		private bool ConnectWithOperator()
 		{
