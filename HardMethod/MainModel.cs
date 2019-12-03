@@ -10,12 +10,12 @@ namespace HardMethod
 	{
 		string Answer { get; }
 		string Log { get; }
-		DateTime Now { get; }
+		DateTime DateTime { get; }
 		int FreeOperatorsCount { get; set; }
 		int Key { get; set; }
 
 		event EventHandler Updated;
-		void ChangeDayOfWeekChange(int i);
+		void ChangeDayOfWeek(int i);
 		void ChangeTime(DateTime time);
 		void Update();
 	}
@@ -28,14 +28,14 @@ namespace HardMethod
 		private readonly decimal _balance;
 		private int _freeOperatorsCount;
 		private int _key;
-		private DateTime _now;
-		private StringBuilder _log = new StringBuilder();
+		private DateTime _dateTime;
+		private readonly StringBuilder _log = new StringBuilder();
 		#endregion
 
 		public MainModel()
 		{
 			_key = -1;
-			_now = DateTime.Now.AddDays(_random.Next(30)).AddHours(_random.Next(24));
+			_dateTime = DateTime.Now.AddDays(_random.Next(30)).AddHours(_random.Next(24));
 			_freeOperatorsCount = _random.Next(100);
 			_balance = (decimal)_random.Next(9999) / 10;
 		}
@@ -44,12 +44,12 @@ namespace HardMethod
 		public string Answer { get; private set; }
 		public string Log => _log.ToString();
 
-		public DateTime Now
+		public DateTime DateTime
 		{
-			get => _now;
+			get => _dateTime;
 			private set
 			{
-				_now = value;
+				_dateTime = value;
 				_key = -1;
 				Update();
 			}
@@ -77,102 +77,102 @@ namespace HardMethod
 		#endregion
 
 		public event EventHandler Updated;
-		public void ChangeDayOfWeekChange(int i)
+		public void ChangeDayOfWeek(int i)
 		{
-			var nowDayOfWeek = (int)Now.DayOfWeek;
-			Now = Now.AddDays(i + 1 - nowDayOfWeek);
+			var nowDayOfWeek = (int)DateTime.DayOfWeek;
+			DateTime = DateTime.AddDays(i + 1 - nowDayOfWeek);
 		}
 		public void ChangeTime(DateTime time)
 		{
-			Now = new DateTime(
-				Now.Year,
-				Now.Month,
-				Now.Day).AddHours(time.Hour).AddMinutes(time.Minute);
+			DateTime = new DateTime(
+				DateTime.Year,
+				DateTime.Month,
+				DateTime.Day).AddHours(time.Hour).AddMinutes(time.Minute);
 		}
 		public void Update()
 		{
-			var map = new Dictionary<DayOfWeek, AnswerBuilder>
+			var dialogs = new Dictionary<DayOfWeek, DialogBuilder>
 			{
 				[DayOfWeek.Monday] =
-					If(() => PressKeys(
-						new PressKey(1, "заблокировать карту", "Карта заблокирована"),
-						new PressKey(2, "узнать баланс", $"Ваш баланс: {_balance:N}руб."),
-						new PressKey(3, "узнать новости", "Текст новостей..."),
-						new PressKey(0, "соединить со оператором", null)))
+					If(() => DialogByKeys(
+						new DialogKey(1, "заблокировать карту", "Карта заблокирована"),
+						new DialogKey(2, "узнать баланс", $"Ваш баланс: {_balance:N}руб."),
+						new DialogKey(3, "узнать новости", "Текст новостей..."),
+						new DialogKey(0, "соединить со оператором", null)))
 					.ThenIf(() => IsWorkTime(8, 20))
 					.ThenIf(() => FreeOperatorsCountMore(15))
 					.Then(ConnectWithOperator)
-					.IfCancel(InvateCard),
+					.IfReject(InviteCard),
 
 				[DayOfWeek.Tuesday] =
-					If(() => PressKeys(
-						new PressKey(1, "заблокировать карту", "Карта заблокирована"),
-						new PressKey(2, "узнать баланс", $"Ваш баланс: {_balance:N}руб."),
-						new PressKey(3, "оформить кредит", "Кредит оформлен"),
-						new PressKey(4, "оформить вклад", "Вклад оформлен"),
-						new PressKey(0, "соединить со оператором", null)))
+					If(() => DialogByKeys(
+						new DialogKey(1, "заблокировать карту", "Карта заблокирована"),
+						new DialogKey(2, "узнать баланс", $"Ваш баланс: {_balance:N}руб."),
+						new DialogKey(3, "оформить кредит", "Кредит оформлен"),
+						new DialogKey(4, "оформить вклад", "Вклад оформлен"),
+						new DialogKey(0, "соединить со оператором", null)))
 					.ThenIf(() => IsWorkTime(8, 20))
 					.ThenIf(() => FreeOperatorsCountMore(25))
 					.Then(ConnectWithOperator)
-					.IfCancel(InvateCard)
-					.IfCancel(InvateMortgage),
+					.IfReject(InviteCard)
+					.IfReject(InviteMortgage),
 
 				[DayOfWeek.Wednesday] =
-					If(() => PressKeys(
-						new PressKey(1, "заблокировать карту", "Карта заблокирована"),
-						new PressKey(2, "узнать баланс", $"Ваш баланс: {_balance:N}руб."),
-						new PressKey(3, "узнать новости", "Текст новостей..."),
-						new PressKey(4, "оформить вклад", "Вклад оформлен"),
-						new PressKey(0, "соединить со оператором", null)))
+					If(() => DialogByKeys(
+						new DialogKey(1, "заблокировать карту", "Карта заблокирована"),
+						new DialogKey(2, "узнать баланс", $"Ваш баланс: {_balance:N}руб."),
+						new DialogKey(3, "узнать новости", "Текст новостей..."),
+						new DialogKey(4, "оформить вклад", "Вклад оформлен"),
+						new DialogKey(0, "соединить со оператором", null)))
 					.ThenIf(() => IsWorkTime(8, 20))
 					.ThenIf(() => FreeOperatorsCountMore(50))
 					.Then(ConnectWithOperator)
-					.IfCancel(InvateCard)
-					.IfCancel(InvateMortgage),
+					.IfReject(InviteCard)
+					.IfReject(InviteMortgage),
 
 				[DayOfWeek.Thursday] =
-					If(() => PressKeys(
-						new PressKey(1, "заблокировать карту", "Карта заблокирована"),
-						new PressKey(2, "узнать баланс", $"Ваш баланс: {_balance:N}руб."),
-						new PressKey(3, "узнать новости", "Текст новостей..."),
-						new PressKey(4, "оформить кредит", "Кредит оформлен"),
-						new PressKey(5, "оформить вклад", "Вклад оформлен"),
-						new PressKey(0, "соединить со оператором", null)))
+					If(() => DialogByKeys(
+						new DialogKey(1, "заблокировать карту", "Карта заблокирована"),
+						new DialogKey(2, "узнать баланс", $"Ваш баланс: {_balance:N}руб."),
+						new DialogKey(3, "узнать новости", "Текст новостей..."),
+						new DialogKey(4, "оформить кредит", "Кредит оформлен"),
+						new DialogKey(5, "оформить вклад", "Вклад оформлен"),
+						new DialogKey(0, "соединить со оператором", null)))
 					.ThenIf(() => IsWorkTime(8, 20))
 					.ThenIf(() => FreeOperatorsCountMore(50))
 					.Then(ConnectWithOperator)
-					.IfCancel(InvateCard)
-					.IfCancel(InvateMortgage),
+					.IfReject(InviteCard)
+					.IfReject(InviteMortgage),
 
 				[DayOfWeek.Friday] =
-					If(() => PressKeys(
-						new PressKey(1, "заблокировать карту", "Карта заблокирована"),
-						new PressKey(2, "узнать баланс", $"Ваш баланс: {_balance:N}руб."),
-						new PressKey(0, "соединить со оператором", null)))
+					If(() => DialogByKeys(
+						new DialogKey(1, "заблокировать карту", "Карта заблокирована"),
+						new DialogKey(2, "узнать баланс", $"Ваш баланс: {_balance:N}руб."),
+						new DialogKey(0, "соединить со оператором", null)))
 					.ThenIf(() => IsWorkTime(8, 22))
 					.ThenIf(() => FreeOperatorsCountMore(75))
 					.Then(ConnectWithOperator)
-					.IfCancel(InvateCard),
+					.IfReject(InviteCard),
 
 				[DayOfWeek.Saturday] =
-					If(() => PressKeys(
-						new PressKey(1, "заблокировать карту", "Карта заблокирована"),
-						new PressKey(2, "узнать баланс", $"Ваш баланс: {_balance:N}руб."),
-						new PressKey(3, "оформить кредит", "Кредит оформлен"),
-						new PressKey(4, "оформить вклад", "Вклад оформлен"),
-						new PressKey(0, "соединить со оператором", null)))
+					If(() => DialogByKeys(
+						new DialogKey(1, "заблокировать карту", "Карта заблокирована"),
+						new DialogKey(2, "узнать баланс", $"Ваш баланс: {_balance:N}руб."),
+						new DialogKey(3, "оформить кредит", "Кредит оформлен"),
+						new DialogKey(4, "оформить вклад", "Вклад оформлен"),
+						new DialogKey(0, "соединить со оператором", null)))
 					.ThenIf(IsWorkDay)
 					.ThenIf(() => IsWorkTime(8, 15))
 					.ThenIf(() => FreeOperatorsCountMore(20))
 					.Then(ConnectWithOperator)
-					.IfCancel(InvateCard),
+					.IfReject(InviteCard),
 
 				[DayOfWeek.Sunday] =
-					If(() => PressKeys(
-						new PressKey(1, "заблокировать карту", "Карта заблокирована"),
-						new PressKey(2, "узнать баланс", $"Ваш баланс: {_balance:N}руб."),
-						new PressKey(3, "узнать новости", "Текст новостей..."),
-						new PressKey(0, "соединить со оператором", null)))
+					If(() => DialogByKeys(
+						new DialogKey(1, "заблокировать карту", "Карта заблокирована"),
+						new DialogKey(2, "узнать баланс", $"Ваш баланс: {_balance:N}руб."),
+						new DialogKey(3, "узнать новости", "Текст новостей..."),
+						new DialogKey(0, "соединить со оператором", null)))
 					.ThenIf(IsWorkDay)
 					.ThenIf(() => IsWorkTime(8, 14))
 					.ThenIf(() => FreeOperatorsCountMore(20))
@@ -180,11 +180,13 @@ namespace HardMethod
 			};
 
 			_log.Clear();
-			foreach (var check in map[Now.DayOfWeek].Checks)
+
+			foreach (var dialog in dialogs[DateTime.DayOfWeek].Dialogs)
 			{
-				if (!check.Invoke())
+				var isReject = !dialog.Invoke();
+				if (isReject) // произошёл отказ (нерабочий день и т.п.)
 				{
-					map[Now.DayOfWeek].Else.ForEach(a => a?.Invoke());
+					dialogs[DateTime.DayOfWeek].AnswersWhenReject.ForEach(a => a?.Invoke());
 					break;
 				}
 			}
@@ -192,14 +194,21 @@ namespace HardMethod
 			Updated?.Invoke(this, EventArgs.Empty);
 		}
 
-		private bool PressKeys(params PressKey[] keys)
+		/// <summary>
+		/// Строит диалог в зависимости от введённой клавиши
+		/// </summary>
+		/// <param name="keys">Доступные клавиши</param>
+		/// <returns></returns>
+		private bool DialogByKeys(params DialogKey[] keys)
 		{
 			var map = keys.ToDictionary(n => n.Key, n => n.Answer);
 			Answer = string.Join("\n",
 				keys.Select(n => $"Чтобы {n.Description} нажмите клавишу {n.Key}."));
 
-			_log.AppendLine($"PressKey:\n\t{string.Join("\n\t", keys.Select(k => k.Description))}");
-			if (!map.ContainsKey(Key))
+			_log.AppendLine($"PressKey:\n\t" +
+				$"{string.Join("\n\t", keys.Select(k => $"{k.Key}: {k.Description}"))}");
+
+			if (!map.ContainsKey(Key)) //если клавиши нет в списке доступных
 			{
 				Answer += "\n\nВведённая клавиша не распознана.\nПовторите попытку";
 				_log.AppendLine("UnknownKey");
@@ -214,13 +223,13 @@ namespace HardMethod
 		private bool IsWorkDay()
 		{
 			bool res;
-			if (Now.DayOfWeek == DayOfWeek.Saturday)
+			if (DateTime.DayOfWeek == DayOfWeek.Saturday) //Вторая суббота месяца рабочая, остальные нет
 			{
-				res = Now.Day > 7 && Now.Day <= 14;
+				res = DateTime.Day > 7 && DateTime.Day <= 14;
 			}
-			else if (Now.DayOfWeek == DayOfWeek.Sunday)
+			else if (DateTime.DayOfWeek == DayOfWeek.Sunday) //Третье воскресение месяца рабочее, остальные нет
 			{
-				res = Now.Day > 14 && Now.Day <= 21;
+				res = DateTime.Day > 14 && DateTime.Day <= 21;
 			}
 			else
 			{
@@ -233,23 +242,12 @@ namespace HardMethod
 		}
 		private bool IsWorkTime(int min, int max)
 		{
-			var res = Now.Hour >= min &&
-					  Now.Hour < max;
+			var res = DateTime.Hour >= min &&
+					  DateTime.Hour < max;
 
 			_log.AppendLine($"IsWorkTime?: {res}");
 			if (!res) Answer = $"Перезвоните в рабочее время с {min}.00 до {max}.00";
 			return res;
-		}
-
-		private void InvateCard()
-		{
-			_log.AppendLine("IsNewCard");
-			Answer += "\n\nХотите завести карту с кэшбеком до 20%?\nПодробности у наших менеджеров.";
-		}
-		private void InvateMortgage()
-		{
-			_log.AppendLine("InvateMortgage");
-			Answer += "\n\nИпотека со ставкой от 5%?\nПодробности у наших менеджеров.";
 		}
 		private bool FreeOperatorsCountMore(int count)
 		{
@@ -259,52 +257,108 @@ namespace HardMethod
 			if (!res) Answer = "К сожалению, сейчас все операторы заняты.\nПерезвоните позже";
 			return res;
 		}
-		private bool ConnectWithOperator()
+		private void ConnectWithOperator()
 		{
 			Answer = "Сейчас вы будете соединины со специалистом";
-			return true;
+		}
+		private void InviteCard()
+		{
+			_log.AppendLine("InviteCard");
+			Answer += "\n\nХотите завести карту с кэшбеком до 20%?\nПодробности на нашем сайте www.bank.ru.";
+		}
+		private void InviteMortgage()
+		{
+			_log.AppendLine("InviteMortgage");
+			Answer += "\n\nИпотека со ставкой от 5%?\nПодробности на нашем сайте www.bank.ru.";
 		}
 
-		private AnswerBuilder If(Func<bool> check) => new AnswerBuilder(check);
+		/// <summary>
+		/// Начинает диалог
+		/// </summary>
+		private DialogBuilder If(Func<bool> dialog) => new DialogBuilder(dialog);
 
 		#region Helpers
-		private class PressKey
+		/// <summary>
+		/// Обработчик нажатия клавиши на телефоне
+		/// </summary>
+		private class DialogKey
 		{
-			public PressKey(int key, string description, string answer)
+			/// <summary>
+			/// Обработчик нажатия клавиши на телефоне
+			/// </summary>
+			/// <param name="key">Цифра на клавише</param>
+			/// <param name="description">Описание, выводимое до нажатия клавиши</param>
+			/// <param name="answer">Результат в виде текста выводимого после нажатия клавиши</param>
+			public DialogKey(int key, string description, string answer)
 			{
 				Key = key;
 				Description = description;
 				Answer = answer;
 			}
-
+			/// <summary>
+			/// Цифра на клавише
+			/// </summary>
 			public int Key { get; }
+			/// <summary>
+			/// Описание, выводимое до нажатия клавиши
+			/// </summary>
 			public string Description { get; }
+			/// <summary>
+			/// Результат в виде текста выводимого после нажатия клавиши
+			/// </summary>
 			public string Answer { get; }
 		}
-		private class AnswerBuilder
+
+		/// <summary>
+		/// Беглый строитель диалога
+		/// (Fluent Builder Pattern https://metanit.com/sharp/patterns/6.1.php)
+		/// </summary>
+		private class DialogBuilder
 		{
-			public List<Func<bool>> Checks { get; } = new List<Func<bool>>();
-			public List<Action> Else { get; } = new List<Action>();
+			/// <summary>
+			/// Цепочка диалога бота
+			/// </summary>
+			public List<Func<bool>> Dialogs { get; } = new List<Func<bool>>();
 
-			public AnswerBuilder(Func<bool> check)
+			/// <summary>
+			/// Ответы бота в случае отказа (нерабочий день и т.п.)
+			/// </summary>
+			public List<Action> AnswersWhenReject { get; } = new List<Action>();
+
+			/// <summary>
+			/// Беглый строитель диалога
+			/// </summary>
+			public DialogBuilder(Func<bool> dialog)
 			{
-				Checks.Add(check);
+				Dialogs.Add(dialog);
 			}
-
-			public AnswerBuilder ThenIf(Func<bool> check)
+			/// <summary>
+			/// Продолжает диалог с вопросом или проверяет условие
+			/// </summary>
+			public DialogBuilder ThenIf(Func<bool> dialog)
 			{
-				Checks.Add(check);
+				Dialogs.Add(dialog);
 				return this;
 			}
-			public AnswerBuilder Then(Func<bool> check)
+			/// <summary>
+			/// Продолжает диалог без вопроса
+			/// </summary>
+			public DialogBuilder Then(Action dialog)
 			{
-				Checks.Add(check);
+				Dialogs.Add(() =>
+				{
+					dialog?.Invoke();
+					return true;
+				});
 				return this;
 			}
 
-			public AnswerBuilder IfCancel(Action action)
+			/// <summary>
+			/// Продолжает диалог если произошёл отказ (нерабочий день и т.п.)
+			/// </summary>
+			public DialogBuilder IfReject(Action action)
 			{
-				Else.Add(action);
+				AnswersWhenReject.Add(action);
 				return this;
 			}
 		}

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace HardMethod
+﻿namespace HardMethod
 {
 	public class MainPresenter
 	{
@@ -12,7 +10,7 @@ namespace HardMethod
 			_model = model;
 			_view = view;
 
-			_view.DayOfWeekChange += (sender, i) => _model.ChangeDayOfWeekChange(i);
+			_view.DayOfWeekChange += (sender, i) => _model.ChangeDayOfWeek(i);
 			_view.TimeChange += (sender, time) => _model.ChangeTime(time);
 			_view.FreeOperatorsCountChange += (sender, count) => _model.FreeOperatorsCount = count;
 			_view.KeyInput += (sender, key) => _model.Key = key;

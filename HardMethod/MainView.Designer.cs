@@ -28,10 +28,12 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainView));
 			this.btsDayOfWeek = new DevExpress.XtraEditors.RadioGroup();
 			this.timeEdit = new DevExpress.XtraEditors.TimeEdit();
 			this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
 			this.tablePanel1 = new DevExpress.Utils.Layout.TablePanel();
+			this.labelControl5 = new DevExpress.XtraEditors.LabelControl();
 			this.txtKey = new DevExpress.XtraEditors.TextEdit();
 			this.labelControl4 = new DevExpress.XtraEditors.LabelControl();
 			this.lbLog = new DevExpress.XtraEditors.LabelControl();
@@ -39,7 +41,6 @@
 			this.txtFreeOperatorsCount = new DevExpress.XtraEditors.TextEdit();
 			this.labelControl3 = new DevExpress.XtraEditors.LabelControl();
 			this.labelControl2 = new DevExpress.XtraEditors.LabelControl();
-			this.labelControl5 = new DevExpress.XtraEditors.LabelControl();
 			((System.ComponentModel.ISupportInitialize)(this.btsDayOfWeek.Properties)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.timeEdit.Properties)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.tablePanel1)).BeginInit();
@@ -124,6 +125,21 @@
 			this.tablePanel1.Size = new System.Drawing.Size(584, 557);
 			this.tablePanel1.TabIndex = 4;
 			// 
+			// labelControl5
+			// 
+			this.labelControl5.Appearance.BackColor = System.Drawing.Color.DimGray;
+			this.labelControl5.Appearance.Options.UseBackColor = true;
+			this.labelControl5.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
+			this.tablePanel1.SetColumn(this.labelControl5, 0);
+			this.tablePanel1.SetColumnSpan(this.labelControl5, 2);
+			this.labelControl5.Dock = System.Windows.Forms.DockStyle.Top;
+			this.labelControl5.Location = new System.Drawing.Point(0, 254);
+			this.labelControl5.Margin = new System.Windows.Forms.Padding(0);
+			this.labelControl5.Name = "labelControl5";
+			this.tablePanel1.SetRow(this.labelControl5, 6);
+			this.labelControl5.Size = new System.Drawing.Size(584, 1);
+			this.labelControl5.TabIndex = 12;
+			// 
 			// txtKey
 			// 
 			this.tablePanel1.SetColumn(this.txtKey, 1);
@@ -201,27 +217,13 @@
 			this.labelControl2.TabIndex = 4;
 			this.labelControl2.Text = "Выберите время";
 			// 
-			// labelControl5
-			// 
-			this.labelControl5.Appearance.BackColor = System.Drawing.Color.DimGray;
-			this.labelControl5.Appearance.Options.UseBackColor = true;
-			this.labelControl5.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
-			this.tablePanel1.SetColumn(this.labelControl5, 0);
-			this.tablePanel1.SetColumnSpan(this.labelControl5, 2);
-			this.labelControl5.Dock = System.Windows.Forms.DockStyle.Top;
-			this.labelControl5.Location = new System.Drawing.Point(0, 254);
-			this.labelControl5.Margin = new System.Windows.Forms.Padding(0);
-			this.labelControl5.Name = "labelControl5";
-			this.tablePanel1.SetRow(this.labelControl5, 6);
-			this.labelControl5.Size = new System.Drawing.Size(584, 1);
-			this.labelControl5.TabIndex = 12;
-			// 
 			// MainView
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(584, 557);
 			this.Controls.Add(this.tablePanel1);
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.KeyPreview = true;
 			this.Margin = new System.Windows.Forms.Padding(2);
 			this.Name = "MainView";

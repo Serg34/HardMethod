@@ -31,9 +31,9 @@ namespace HardMethod
 			try
 			{
 				_updating = true;
-				btsDayOfWeek.SelectedIndex = model.Now.DayOfWeek == DayOfWeek.Sunday ? 6
-					: (int)model.Now.DayOfWeek - 1;
-				timeEdit.Time = model.Now;
+				btsDayOfWeek.SelectedIndex = model.DateTime.DayOfWeek == DayOfWeek.Sunday ? 6
+					: (int)model.DateTime.DayOfWeek - 1;
+				timeEdit.Time = model.DateTime;
 				txtFreeOperatorsCount.Text = model.FreeOperatorsCount.ToString();
 				txtKey.Text = model.Key.ToString();
 

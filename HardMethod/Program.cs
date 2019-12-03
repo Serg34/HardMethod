@@ -16,7 +16,7 @@ namespace HardMethod
 
 			var model = new MainModel();
 			var view = new MainView();
-			var presenter = new MainPresenter(model,view);
+			var presenter = new MainPresenter(model, view);
 
 			Application.Run(view);
 		}
