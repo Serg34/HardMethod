@@ -41,9 +41,15 @@ namespace HardMethod
 		}
 
 		#region Properties
+		/// <summary>
+		/// Окончательный ответ
+		/// </summary>
 		public string Answer { get; private set; }
 		public string Log => _log.ToString();
 
+		/// <summary>
+		/// Время звонка
+		/// </summary>
 		public DateTime DateTime
 		{
 			get => _dateTime;
@@ -55,6 +61,9 @@ namespace HardMethod
 			}
 		}
 
+		/// <summary>
+		/// Количетво свободных операторов
+		/// </summary>
 		public int FreeOperatorsCount
 		{
 			get => _freeOperatorsCount;
@@ -65,6 +74,9 @@ namespace HardMethod
 			}
 		}
 
+		/// <summary>
+		/// Введённая клавиша
+		/// </summary>
 		public int Key
 		{
 			get => _key;
@@ -77,6 +89,7 @@ namespace HardMethod
 		#endregion
 
 		public event EventHandler Updated;
+
 		public void ChangeDayOfWeek(int i)
 		{
 			var nowDayOfWeek = (int)DateTime.DayOfWeek;
@@ -194,11 +207,8 @@ namespace HardMethod
 			Updated?.Invoke(this, EventArgs.Empty);
 		}
 
-		/// <summary>
-		/// Строит диалог в зависимости от введённой клавиши
-		/// </summary>
+		/// <summary>Строит диалог в зависимости от введённой клавиши</summary>
 		/// <param name="keys">Доступные клавиши</param>
-		/// <returns></returns>
 		private bool DialogByKeys(params DialogKey[] keys)
 		{
 			var map = keys.ToDictionary(n => n.Key, n => n.Answer);
@@ -272,20 +282,14 @@ namespace HardMethod
 			Answer += "\n\nИпотека со ставкой от 5%?\nПодробности на нашем сайте www.bank.ru.";
 		}
 
-		/// <summary>
-		/// Начинает диалог
-		/// </summary>
+		/// <summary>Начинает диалог</summary>
 		private DialogBuilder If(Func<bool> dialog) => new DialogBuilder(dialog);
 
 		#region Helpers
-		/// <summary>
-		/// Обработчик нажатия клавиши на телефоне
-		/// </summary>
+		/// <summary>Обработчик нажатия клавиши на телефоне</summary>
 		private class DialogKey
 		{
-			/// <summary>
-			/// Обработчик нажатия клавиши на телефоне
-			/// </summary>
+			/// <summary>Обработчик нажатия клавиши на телефоне</summary>
 			/// <param name="key">Цифра на клавише</param>
 			/// <param name="description">Описание, выводимое до нажатия клавиши</param>
 			/// <param name="answer">Результат в виде текста выводимого после нажатия клавиши</param>
@@ -295,17 +299,13 @@ namespace HardMethod
 				Description = description;
 				Answer = answer;
 			}
-			/// <summary>
-			/// Цифра на клавише
-			/// </summary>
+			/// <summary>Цифра на клавише</summary>
 			public int Key { get; }
-			/// <summary>
-			/// Описание, выводимое до нажатия клавиши
-			/// </summary>
+
+			/// <summary>Описание, выводимое до нажатия клавиши</summary>
 			public string Description { get; }
-			/// <summary>
-			/// Результат в виде текста выводимого после нажатия клавиши
-			/// </summary>
+
+			/// <summary>Результат в виде текста выводимого после нажатия клавиши</summary>
 			public string Answer { get; }
 		}
 
@@ -315,34 +315,24 @@ namespace HardMethod
 		/// </summary>
 		private class DialogBuilder
 		{
-			/// <summary>
-			/// Цепочка диалога бота
-			/// </summary>
+			/// <summary>Цепочка диалога бота</summary>
 			public List<Func<bool>> Dialogs { get; } = new List<Func<bool>>();
 
-			/// <summary>
-			/// Ответы бота в случае отказа (нерабочий день и т.п.)
-			/// </summary>
+			/// <summary>Ответы бота в случае отказа (нерабочий день и т.п.)</summary>
 			public List<Action> AnswersWhenReject { get; } = new List<Action>();
 
-			/// <summary>
-			/// Беглый строитель диалога
-			/// </summary>
+			/// <summary>Беглый строитель диалога</summary>
 			public DialogBuilder(Func<bool> dialog)
 			{
 				Dialogs.Add(dialog);
 			}
-			/// <summary>
-			/// Продолжает диалог с вопросом или проверяет условие
-			/// </summary>
+			/// <summary>Продолжает диалог с вопросом или проверяет условие</summary>
 			public DialogBuilder ThenIf(Func<bool> dialog)
 			{
 				Dialogs.Add(dialog);
 				return this;
 			}
-			/// <summary>
-			/// Продолжает диалог без вопроса
-			/// </summary>
+			/// <summary>Продолжает диалог без вопроса</summary>
 			public DialogBuilder Then(Action dialog)
 			{
 				Dialogs.Add(() =>
@@ -353,9 +343,7 @@ namespace HardMethod
 				return this;
 			}
 
-			/// <summary>
-			/// Продолжает диалог если произошёл отказ (нерабочий день и т.п.)
-			/// </summary>
+			/// <summary>Продолжает диалог если произошёл отказ (нерабочий день и т.п.)</summary>
 			public DialogBuilder IfReject(Action action)
 			{
 				AnswersWhenReject.Add(action);
